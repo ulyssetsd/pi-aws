@@ -32,8 +32,18 @@ kubectl apply -f clusters/pi/system/gitops-source.yaml
 
 - **K3s**: Lightweight Kubernetes
 - **Flux**: GitOps operator
-- **Traefik**: Ingress controller
-- **Sample App**: Hello World nginx
+- **Traefik**: Ingress controller with SSL
+- **Cert-Manager**: Automatic Let's Encrypt certificates
+- **Sample App**: Hello World nginx at `hello.ulyssetassidis.fr`
+
+## DNS Configuration Required
+
+Point your domain to your Raspberry Pi:
+```
+hello.ulyssetassidis.fr A 192.168.1.150
+```
+
+For external access, configure your router to forward ports 80/443 to your Pi.
 
 ## Adding Applications
 
@@ -50,6 +60,11 @@ kubectl get pods -A
 flux get sources git
 flux get kustomizations
 
-# Check apps
+# Check apps and certificates
 kubectl get pods -n hello-world
+kubectl get certificates -A
+kubectl get ingress -A
+
+# Test the application
+curl https://hello.ulyssetassidis.fr
 ```

@@ -49,10 +49,16 @@ metadata:
   name: hello-world
   namespace: hello-world
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  tls:
+  - hosts:
+    - hello.ulyssetassidis.fr
+    secretName: hello-tls
   rules:
-  - host: hello.raspberrypi.local
+  - host: hello.ulyssetassidis.fr
     http:
       paths:
       - path: /
