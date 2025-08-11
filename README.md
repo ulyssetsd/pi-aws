@@ -36,14 +36,12 @@ kubectl apply -f clusters/pi/system/gitops-source.yaml
 - **Cert-Manager**: Automatic Let's Encrypt certificates
 - **Sample App**: Hello World nginx at `hello.ulyssetassidis.fr`
 
-## DNS Configuration Required
+## DNS Configuration ✅
 
-Point your domain to your Raspberry Pi:
-```
-hello.ulyssetassidis.fr A 192.168.1.150
-```
-
-For external access, configure your router to forward ports 80/443 to your Pi.
+Domain is configured and working:
+- `hello.ulyssetassidis.fr` → `5.51.4.146` (public IP)
+- Router port forwarding: 80/443 → 192.168.1.150
+- SSL certificates automatically issued by Let's Encrypt
 
 ## Adding Applications
 
