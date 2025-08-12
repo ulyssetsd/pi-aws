@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - cert-manager-crds.yaml
 - cert-manager.yaml
+- pi-grafana-source.yaml
