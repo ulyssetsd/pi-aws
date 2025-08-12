@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - cert-manager.yaml
 - hello-world.yaml
+- portainer.yaml
