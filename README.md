@@ -45,7 +45,74 @@ Domain is configured and working:
 
 ## Adding Applications
 
+### Method 1: Add to this repository
 Add YAML files to `clusters/pi/apps/` and commit to git. Flux will automatically deploy them.
+
+### Method 2: Deploy from another repository
+
+1. **Create k8s manifests in your app repository:**
+   ```bash
+   # In your app repo (e.g., ~/code/my-app)
+   mkdir k8s/
+   # Add your deployment.yaml, service.yaml, ingress.yaml, etc.
+   # Include kustomization.yaml listing all resources
+   ```
+
+2. **Add GitOps source in this repo:**
+   ```bash
+   # Create clusters/pi/system/my-app-source.yaml
+   cat > clusters/pi/system/my-app-source.yaml << EOF
+   apiVersion: source.toolkit.fluxcd.io/v1
+   kind: GitRepository
+   metadata:
+     name: my-app
+     namespace: flux-system
+   spec:
+     interval: 1m
+     url: https://github.com/username/my-app
+     ref:
+       branch: main
+   ---
+   apiVersion: kustomize.toolkit.fluxcd.io/v1
+   kind: Kustomization
+   metadata:
+     name: my-app
+     namespace: flux-system
+   spec:
+     interval: 1m
+     sourceRef:
+       kind: GitRepository
+       name: my-app
+     path: "./k8s"
+     prune: true
+     wait: true
+   EOF
+   ```
+
+3. **Add to system kustomization:**
+   ```bash
+   echo "- my-app-source.yaml" >> clusters/pi/system/kustomization.yaml
+   ```
+
+4. **Commit and deploy:**
+   ```bash
+   git add . && git commit -m "Add my-app" && git push
+   # Or apply directly: kubectl apply -f clusters/pi/system/my-app-source.yaml
+   ```
+
+5. **Check deployment (automatic within 1 minute):**
+   ```bash
+   # Flux checks every 1 minute automatically
+   # To check immediately without waiting:
+   flux reconcile source git pi-aws
+   
+   # Monitor status:
+   flux get sources git
+   flux get kustomizations
+   kubectl get pods -n your-namespace
+   ```
+
+**Example**: The monitoring stack (Grafana/Prometheus) uses this pattern via `pi-grafana-source.yaml`.
 
 ## Management Commands
 
