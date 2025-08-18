@@ -34,6 +34,7 @@ kubectl apply -f clusters/pi/system/gitops-source.yaml
 - **Flux**: GitOps operator  
 - **Traefik**: Ingress controller with SSL (included with K3s)
 - **Cert-Manager**: Automatic Let's Encrypt certificates
+- **WG-Easy**: WireGuard VPN management interface
 - **Portainer**: Kubernetes management UI
 
 ## DNS Configuration ✅
