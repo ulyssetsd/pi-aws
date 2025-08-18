@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: wg-sysctl-setup
+  namespace: wg-easy
+spec:
+  selector:
+    matchLabels:
+      name: wg-sysctl-setup
+  template:
+    metadata:
+      labels:
+        name: wg-sysctl-setup
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: sysctl-setup
+        image: alpine:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          sysctl -w net.ipv4.ip_forward=1
+          sysctl -w net.ipv4.conf.all.src_valid_mark=1
+          sysctl -w net.ipv6.conf.all.disable_ipv6=0
+          sysctl -w net.ipv6.conf.all.forwarding=1
+          sysctl -w net.ipv6.conf.default.forwarding=1
+          sleep infinity
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: proc-sys
+          mountPath: /host/proc/sys
+        - name: sys
+          mountPath: /host/sys
+      volumes:
+      - name: proc-sys
+        hostPath:
+          path: /proc/sys
+      - name: sys
+        hostPath:
+          path: /sys
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
