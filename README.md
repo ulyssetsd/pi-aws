@@ -31,17 +31,17 @@ kubectl apply -f clusters/pi/system/gitops-source.yaml
 ## What's Included
 
 - **K3s**: Lightweight Kubernetes
-- **Flux**: GitOps operator
-- **Traefik**: Ingress controller with SSL
+- **Flux**: GitOps operator  
+- **Traefik**: Ingress controller with SSL (included with K3s)
 - **Cert-Manager**: Automatic Let's Encrypt certificates
-- **Sample App**: Hello World nginx at `hello.ulyssetassidis.fr`
+- **Portainer**: Kubernetes management UI
 
 ## DNS Configuration ✅
 
 Domain is configured and working:
-- `hello.ulyssetassidis.fr` → `5.51.4.146` (public IP)
-- Router port forwarding: 80/443 → 192.168.1.150
+- Router port forwarding: 80/443 → 192.168.1.150  
 - SSL certificates automatically issued by Let's Encrypt
+- Applications accessible via `*.ulyssetassidis.fr` subdomains
 
 ## Adding Applications
 
@@ -126,10 +126,10 @@ flux get sources git
 flux get kustomizations
 
 # Check apps and certificates
-kubectl get pods -n hello-world
-kubectl get certificates -A
+kubectl get pods -n portainer
+kubectl get certificates -A  
 kubectl get ingress -A
 
-# Test the application
-curl https://hello.ulyssetassidis.fr
+# Test applications (if any are deployed)
+# Example: curl https://portainer.ulyssetassidis.fr
 ```
