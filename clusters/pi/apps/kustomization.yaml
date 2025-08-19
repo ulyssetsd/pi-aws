@@ -4,3 +4,5 @@ resources:
 - letsencrypt-issuer.yaml
 - portainer.yaml
 - wg-easy.yaml
+- pi-grafana.yaml
+- ulyssetsd-github-io.yaml

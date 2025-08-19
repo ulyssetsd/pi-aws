@@ -25,7 +25,7 @@ curl -s https://fluxcd.io/install.sh | sudo bash
 flux install
 
 # 5. Setup GitOps
-kubectl apply -f clusters/pi/system/gitops-source.yaml
+kubectl apply -f clusters/pi/bootstrap/gitops-source.yaml
 
 # 6. Verify Installation (optional)
 # Wait 2-3 minutes for everything to deploy, then check:
@@ -44,100 +44,77 @@ kubectl get ingress -A                # Check web services
 - **WG-Easy**: WireGuard VPN management interface
 - **Portainer**: Kubernetes management UI
 
+## Adding New Applications
+
+To add a new application:
+
+1. Create a single YAML file in `clusters/pi/apps/` using one of the patterns above
+2. Add the filename to `clusters/pi/apps/kustomization.yaml`
+3. Commit and push - Flux will automatically deploy it!
+
+## Application Patterns
+
+Choose the appropriate pattern for your application:
+
+### Pattern 1: Direct Kubernetes Manifests
+Use this for simple applications with all resources defined directly:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: my-app
+spec:
+  # ... deployment spec
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app
+  namespace: my-app
+spec:
+  # ... service spec
+```
+
+### Pattern 2: External Git Repository
+Use this for applications maintained in separate repositories:
+
+```yaml
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: my-app
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/username/my-app
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: my-app
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: my-app
+  path: "./k8s"
+  prune: true
+  wait: true
+```
+
 ## DNS Configuration ✅
 
 Domain is configured and working:
 - Router port forwarding: 80/443 → 192.168.1.150  
 - SSL certificates automatically issued by Let's Encrypt
 - Applications accessible via `*.ulyssetassidis.fr` subdomains
-
-## Adding Applications
-
-### Method 1: Add to this repository
-Add YAML files to `clusters/pi/apps/` and commit to git. Flux will automatically deploy them.
-
-### Method 2: Deploy from another repository
-
-1. **Create k8s manifests in your app repository:**
-   ```bash
-   # In your app repo (e.g., ~/code/my-app)
-   mkdir k8s/
-   # Add your deployment.yaml, service.yaml, ingress.yaml, etc.
-   # Include kustomization.yaml listing all resources
-   ```
-
-2. **Add GitOps source in this repo:**
-   ```bash
-   # Create clusters/pi/system/my-app-source.yaml
-   cat > clusters/pi/system/my-app-source.yaml << EOF
-   apiVersion: source.toolkit.fluxcd.io/v1
-   kind: GitRepository
-   metadata:
-     name: my-app
-     namespace: flux-system
-   spec:
-     interval: 1m
-     url: https://github.com/username/my-app
-     ref:
-       branch: main
-   ---
-   apiVersion: kustomize.toolkit.fluxcd.io/v1
-   kind: Kustomization
-   metadata:
-     name: my-app
-     namespace: flux-system
-   spec:
-     interval: 1m
-     sourceRef:
-       kind: GitRepository
-       name: my-app
-     path: "./k8s"
-     prune: true
-     wait: true
-   EOF
-   ```
-
-3. **Add to system kustomization:**
-   ```bash
-   echo "- my-app-source.yaml" >> clusters/pi/system/kustomization.yaml
-   ```
-
-4. **Commit and deploy:**
-   ```bash
-   git add . && git commit -m "Add my-app" && git push
-   # Or apply directly: kubectl apply -f clusters/pi/system/my-app-source.yaml
-   ```
-
-5. **Check deployment (automatic within 1 minute):**
-   ```bash
-   # Flux checks every 1 minute automatically
-   # To check immediately without waiting:
-   flux reconcile source git pi-aws
-   
-   # Monitor status:
-   flux get sources git
-   flux get kustomizations
-   kubectl get pods -n your-namespace
-   ```
-
-**Example**: The monitoring stack (Grafana/Prometheus) uses this pattern via `pi-grafana-source.yaml`.
-
-## Management Commands
-
-```bash
-# Check cluster
-kubectl get nodes
-kubectl get pods -A
-
-# Check GitOps
-flux get sources git
-flux get kustomizations
-
-# Check apps and certificates
-kubectl get pods -n portainer
-kubectl get certificates -A  
-kubectl get ingress -A
-
-# Test applications (if any are deployed)
-# Example: curl https://portainer.ulyssetassidis.fr
-```

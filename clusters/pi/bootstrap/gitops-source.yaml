@@ -12,11 +12,11 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: pi-system
+  name: pi-infrastructure
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./clusters/pi/system
+  path: ./clusters/pi/infrastructure
   prune: true
   sourceRef:
     kind: GitRepository
@@ -34,3 +34,5 @@ spec:
   sourceRef:
     kind: GitRepository
     name: pi-aws
+  dependsOn:
+    - name: pi-infrastructure
