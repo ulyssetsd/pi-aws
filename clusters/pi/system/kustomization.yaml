@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - cert-manager-repository.yaml
 - pi-grafana-source.yaml
+- ulyssetsd-github-io-source.yaml

@@ -26,6 +26,13 @@ flux install
 
 # 5. Setup GitOps
 kubectl apply -f clusters/pi/system/gitops-source.yaml
+
+# 6. Verify Installation (optional)
+# Wait 2-3 minutes for everything to deploy, then check:
+kubectl get pods -A                    # Check all pods
+flux get kustomizations               # Check GitOps status  
+kubectl get certificates -A           # Check SSL certificates
+kubectl get ingress -A                # Check web services
 ```
 
 ## What's Included
