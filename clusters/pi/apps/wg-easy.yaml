@@ -21,16 +21,19 @@ metadata:
   name: wg-easy
   namespace: wg-easy
   labels:
-    app: wg-easy
+    app.kubernetes.io/name: wg-easy
 spec:
   replicas: 1
+  strategy:
+    # Restrict to a single wg-easy instance, on redeploys it will tear down the old one before bringing a new one up
+    type: Recreate
   selector:
     matchLabels:
-      app: wg-easy
+      app.kubernetes.io/name: wg-easy
   template:
     metadata:
       labels:
-        app: wg-easy
+        app.kubernetes.io/name: wg-easy
     spec:
       containers:
       - name: wg-easy
@@ -38,25 +41,53 @@ spec:
         ports:
         - containerPort: 51820
           protocol: UDP
-          name: wireguard
+          name: wg
         - containerPort: 51821
           protocol: TCP
-          name: web
+          name: http
         env:
         - name: INSECURE
           value: "false"
+        - name: WG_HOST
+          value: "wg-easy.ulyssetassidis.fr"
+        - name: WG_PORT
+          value: "51820"
+        # Use the http server for pod health checks
+        livenessProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: http
+          timeoutSeconds: 1
+        readinessProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: http
+          timeoutSeconds: 1
+        startupProbe:
+          failureThreshold: 30
+          periodSeconds: 5
+          successThreshold: 1
+          tcpSocket:
+            port: http
+          timeoutSeconds: 1
         volumeMounts:
         - name: wg-config
           mountPath: /etc/wireguard
         - name: lib-modules
           mountPath: /lib/modules
           readOnly: true
+        # Give pod permissions to modify iptables and load the wireguard kernel module
         securityContext:
           capabilities:
             add:
             - NET_ADMIN
             - SYS_MODULE
           privileged: true
+      restartPolicy: Always
       volumes:
       - name: wg-config
         persistentVolumeClaim:
@@ -73,11 +104,12 @@ metadata:
   namespace: wg-easy
 spec:
   selector:
-    app: wg-easy
+    app.kubernetes.io/name: wg-easy
   ports:
   - port: 51821
-    targetPort: 51821
-    name: web
+    targetPort: http
+    name: http
+    protocol: TCP
 ---
 apiVersion: v1
 kind: Service
@@ -87,12 +119,12 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: wg-easy
+    app.kubernetes.io/name: wg-easy
   ports:
   - port: 51820
-    targetPort: 51820
+    targetPort: wg
     protocol: UDP
-    name: wireguard
+    name: wg
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
