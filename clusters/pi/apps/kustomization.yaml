@@ -4,4 +4,3 @@ resources:
 - letsencrypt-issuer.yaml
 - portainer.yaml
 - wg-easy.yaml
-- wg-sysctl.yaml
