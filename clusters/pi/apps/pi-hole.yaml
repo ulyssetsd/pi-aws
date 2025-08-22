@@ -44,6 +44,22 @@ spec:
       existingSecret: "pihole-admin-password"
       passwordKey: "password"
     
+    # Add security context with required capabilities
+    podSecurityContext:
+      fsGroup: 1000
+    
+    securityContext:
+      capabilities:
+        add: 
+        - NET_ADMIN
+        - NET_RAW
+        - SYS_NICE
+        - SYS_TIME
+      privileged: false
+      runAsUser: 1000
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+    
     # Configure upstream DNS servers (Cloudflare)
     DNS1: "1.1.1.1"
     DNS2: "1.0.0.1"
