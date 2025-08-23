@@ -39,6 +39,9 @@ spec:
     image:
       tag: '2025.08.0'
     
+    # Enable host network access for DHCP broadcasts
+    hostNetwork: true
+    
     # Use existing secret for admin password
     admin:
       existingSecret: "pihole-admin-password"
@@ -51,6 +54,16 @@ spec:
         - NET_RAW
         - SYS_NICE
         - SYS_TIME
+    
+    # DHCP configuration environment variables
+    extraEnvVars:
+      DHCP_ACTIVE: "true"
+      DHCP_START: "192.168.1.200"
+      DHCP_END: "192.168.1.250"
+      DHCP_ROUTER: "192.168.1.1"
+      FTLCONF_LOCAL_IPV4: "192.168.1.153"
+      INTERFACE: "eth0"
+      DNSMASQ_USER: "root"
     
     # Configure upstream DNS servers (Cloudflare)
     DNS1: "1.1.1.1"
@@ -66,6 +79,15 @@ spec:
     serviceDns:
       type: LoadBalancer
       loadBalancerIP: "192.168.1.153"  # Use an unused IP in your network range
+      annotations:
+        metallb.universe.tf/allow-shared-ip: pihole-svc
+      externalTrafficPolicy: Local
+    
+    # Configure DHCP service
+    serviceDhcp:
+      enabled: true
+      type: LoadBalancer
+      loadBalancerIP: "192.168.1.153"  # Same IP as DNS service
       annotations:
         metallb.universe.tf/allow-shared-ip: pihole-svc
       externalTrafficPolicy: Local
