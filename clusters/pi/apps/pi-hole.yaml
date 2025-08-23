@@ -39,9 +39,6 @@ spec:
     image:
       tag: '2025.08.0'
     
-    # Enable host network access for DHCP broadcasts
-    hostNetwork: true
-    
     # Use existing secret for admin password
     admin:
       existingSecret: "pihole-admin-password"
