@@ -52,16 +52,6 @@ spec:
         - SYS_NICE
         - SYS_TIME
     
-    # DHCP configuration environment variables
-    extraEnvVars:
-      DHCP_ACTIVE: "true"
-      DHCP_START: "192.168.1.200"
-      DHCP_END: "192.168.1.250"
-      DHCP_ROUTER: "192.168.1.1"
-      FTLCONF_LOCAL_IPV4: "192.168.1.153"
-      INTERFACE: "eth0"
-      DNSMASQ_USER: "root"
-    
     # Configure upstream DNS servers (Cloudflare)
     DNS1: "1.1.1.1"
     DNS2: "1.0.0.1"
