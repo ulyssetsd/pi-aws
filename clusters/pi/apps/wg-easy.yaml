@@ -53,6 +53,13 @@ spec:
           value: "wg-easy.ulyssetassidis.fr"
         - name: WG_PORT
           value: "51820"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
         # Use the http server for pod health checks
         livenessProbe:
           failureThreshold: 3

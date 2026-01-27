@@ -74,6 +74,13 @@ spec:
         env:
         - name: PORTAINER_K8S_MODE
           value: "true"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
         volumeMounts:
         - name: data
           mountPath: /data
