@@ -6,4 +6,3 @@ resources:
 - wg-easy.yaml
 - pi-grafana.yaml
 - ulyssetsd-github-io.yaml
-- pi-hole.yaml

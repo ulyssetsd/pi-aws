@@ -117,65 +117,28 @@ spec:
 **⚠️ Important: You'll need to customize these network settings for your environment:**
 
 ### IP Address Configuration
-The following IP addresses are hardcoded throughout the configuration and need to be updated for your network:
-
 ```yaml
 # Current network setup (192.168.1.x range):
 - Pi IP: 192.168.1.150
-- Pi-hole/Services IP: 192.168.1.153  
 - Router/Gateway: 192.168.1.1
-- DHCP Range: 192.168.1.200-250
 ```
 
-### Files to Update for Your Network:
+### Domain Configuration
 
-1. **`clusters/pi/apps/pi-hole.yaml`**:
-   ```yaml
-   serviceDns:
-     loadBalancerIP: "192.168.1.153"  # Change to your desired Pi-hole IP
-   serviceDhcp:
-     loadBalancerIP: "192.168.1.153"  # Same as above
-   extraEnvVars:
-     DHCP_START: "192.168.1.200"      # Your DHCP range start
-     DHCP_END: "192.168.1.250"        # Your DHCP range end  
-     DHCP_ROUTER: "192.168.1.1"       # Your router IP
-     FTLCONF_LOCAL_IPV4: "192.168.1.153"  # Same as loadBalancerIP
-     INTERFACE: "eth0"                # Your network interface (check with `ip a`)
-   ```
-
-2. **`clusters/pi/apps/wg-easy.yaml`** (if using WireGuard):
-   - Update `loadBalancerIP` values
-   - Update any internal DNS references
-
-3. **Domain Configuration**:
-   ```yaml
-   # Update all ingress hosts from:
-   hosts:
-     - app.ulyssetassidis.fr
-   # To your domain:
-   hosts:
-     - app.yourdomain.com
-   ```
-
-### Network Interface Detection
-Check your network interface name (might not be `eth0`):
-```bash
-ip a  # Look for your main network interface
-```
-
-### Common Home Network Ranges
-```bash
-# Most common home network ranges:
-192.168.1.x    # Many routers (current setup)
-192.168.0.x    # Common alternative  
-10.0.0.x       # Some modern routers
-192.168.2.x    # Less common alternative
+Update all ingress hosts in your application YAML files:
+```yaml
+# Update from:
+hosts:
+  - app.ulyssetassidis.fr
+# To your domain:
+hosts:
+  - app.yourdomain.com
 ```
 
 ### Router Configuration Required
-- Port forwarding: 80/443 → [Your Pi IP]
-- DNS pointing to your Pi IP (for local services)
-- Optional: Disable router's DHCP if using Pi-hole DHCP
+- Port forwarding: 80/443 → 192.168.1.150 (your Pi IP)
+- DNS A records pointing to your public IP
+- Let's Encrypt will automatically issue SSL certificates
 
 ## DNS Configuration ✅
 
