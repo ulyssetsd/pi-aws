@@ -105,7 +105,7 @@ spec:
       serviceAccountName: portainer-sa-clusteradmin
       containers:
       - name: portainer
-        image: portainer/portainer-ce:latest
+        image: portainer/portainer-ce:2.33.6 # {"$imagepolicy": "flux-system:portainer"}
         ports:
         - containerPort: 9000
           protocol: TCP
