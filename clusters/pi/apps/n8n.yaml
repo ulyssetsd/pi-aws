@@ -95,29 +95,46 @@ spec:
     targetPort: http
     name: http
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+# Middleware for VPN-only access (must be in same namespace as IngressRoute)
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: vpn-only
+  namespace: n8n
+spec:
+  ipAllowList:
+    sourceRange:
+      - 10.8.0.0/24
+      - 192.168.1.0/24
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: n8n-tls
+  namespace: n8n
+spec:
+  secretName: n8n-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - n8n.ulyssetassidis.fr
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   name: n8n
   namespace: n8n
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: default-vpn-only@kubernetescrd
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`n8n.ulyssetassidis.fr`)
+      kind: Rule
+      middlewares:
+        - name: vpn-only
+      services:
+        - name: n8n
+          port: 80
   tls:
-  - hosts:
-    - n8n.ulyssetassidis.fr
     secretName: n8n-tls
-  rules:
-  - host: n8n.ulyssetassidis.fr
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: n8n
-            port:
-              number: 80

@@ -78,29 +78,46 @@ spec:
     targetPort: http
     name: http
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+# Middleware for VPN-only access
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: vpn-only
+  namespace: stirling-pdf
+spec:
+  ipAllowList:
+    sourceRange:
+      - 10.8.0.0/24
+      - 192.168.1.0/24
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: stirling-pdf-tls
+  namespace: stirling-pdf
+spec:
+  secretName: stirling-pdf-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - pdf.ulyssetassidis.fr
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   name: stirling-pdf
   namespace: stirling-pdf
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: default-vpn-only@kubernetescrd
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`pdf.ulyssetassidis.fr`)
+      kind: Rule
+      middlewares:
+        - name: vpn-only
+      services:
+        - name: stirling-pdf
+          port: 80
   tls:
-  - hosts:
-    - pdf.ulyssetassidis.fr
     secretName: stirling-pdf-tls
-  rules:
-  - host: pdf.ulyssetassidis.fr
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: stirling-pdf
-            port:
-              number: 80

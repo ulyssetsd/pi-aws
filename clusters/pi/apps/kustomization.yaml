@@ -6,8 +6,7 @@ resources:
 - wg-easy.yaml
 - pi-grafana.yaml
 - ulyssetsd-github-io.yaml
-# VPN-only apps (restricted via Traefik middleware)
-- vpn-only-middleware.yaml
+# VPN-only apps (restricted via Traefik ipAllowList middleware)
 - it-tools.yaml
 - stirling-pdf.yaml
 - n8n.yaml
