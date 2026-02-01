@@ -61,11 +61,11 @@ spec:
           value: "1.1.1.1, 8.8.8.8"
         resources:
           requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
             cpu: 200m
-            memory: 256Mi
+            memory: 128Mi
+          limits:
+            cpu: 1000m
+            memory: 512Mi
         # Use the http server for pod health checks
         livenessProbe:
           failureThreshold: 3
