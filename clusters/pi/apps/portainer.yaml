@@ -143,29 +143,35 @@ spec:
     requests:
       storage: 1Gi
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: portainer-tls
+  namespace: portainer
+spec:
+  secretName: portainer-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - portainer.ulyssetassidis.fr
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   name: portainer
   namespace: portainer
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: default-vpn-only@kubernetescrd
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`portainer.ulyssetassidis.fr`)
+      kind: Rule
+      middlewares:
+        - name: vpn-only
+          namespace: default
+      services:
+        - name: portainer
+          port: 9000
   tls:
-  - hosts:
-    - portainer.ulyssetassidis.fr
     secretName: portainer-tls
-  rules:
-  - host: portainer.ulyssetassidis.fr
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: portainer
-            port:
-              number: 9000

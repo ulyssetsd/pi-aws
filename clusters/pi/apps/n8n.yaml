@@ -95,18 +95,6 @@ spec:
     targetPort: http
     name: http
 ---
-# Middleware for VPN-only access (must be in same namespace as IngressRoute)
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: vpn-only
-  namespace: n8n
-spec:
-  ipAllowList:
-    sourceRange:
-      - 10.8.0.0/24
-      - 192.168.1.0/24
----
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -133,6 +121,7 @@ spec:
       kind: Rule
       middlewares:
         - name: vpn-only
+          namespace: default
       services:
         - name: n8n
           port: 80
