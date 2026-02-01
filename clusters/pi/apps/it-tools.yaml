@@ -1,5 +1,6 @@
 # IT-Tools - Collection of handy developer utilities
 # https://github.com/CorentinTh/it-tools
+# Access via VPN: http://it-tools.it-tools.svc.cluster.local
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -60,36 +61,3 @@ spec:
   - port: 80
     targetPort: http
     name: http
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: it-tools-tls
-  namespace: it-tools
-spec:
-  secretName: it-tools-tls
-  issuerRef:
-    name: letsencrypt-prod
-    kind: ClusterIssuer
-  dnsNames:
-    - it-tools.ulyssetassidis.fr
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: it-tools
-  namespace: it-tools
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`it-tools.ulyssetassidis.fr`)
-      kind: Rule
-      middlewares:
-        - name: vpn-only
-          namespace: default
-      services:
-        - name: it-tools
-          port: 80
-  tls:
-    secretName: it-tools-tls

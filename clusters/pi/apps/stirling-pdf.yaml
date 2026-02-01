@@ -1,5 +1,6 @@
 # Stirling-PDF - Self-hosted PDF manipulation tool
 # https://github.com/Stirling-Tools/Stirling-PDF
+# Access via VPN: http://stirling-pdf.stirling-pdf.svc.cluster.local
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -31,8 +32,6 @@ spec:
         env:
         - name: DOCKER_ENABLE_SECURITY
           value: "false"
-        - name: SECURITY_ENABLELOGIN
-          value: "false"
         - name: INSTALL_BOOK_AND_ADVANCED_HTML_OPS
           value: "false"
         - name: LANGS
@@ -42,9 +41,8 @@ spec:
             cpu: 100m
             memory: 256Mi
           limits:
-            cpu: 2000m
-            memory: 2Gi
-        # Stirling-PDF takes a long time to start (LibreOffice, etc.)
+            cpu: 1000m
+            memory: 1Gi
         startupProbe:
           httpGet:
             path: /api/v1/info/status
@@ -77,36 +75,3 @@ spec:
   - port: 80
     targetPort: http
     name: http
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: stirling-pdf-tls
-  namespace: stirling-pdf
-spec:
-  secretName: stirling-pdf-tls
-  issuerRef:
-    name: letsencrypt-prod
-    kind: ClusterIssuer
-  dnsNames:
-    - pdf.ulyssetassidis.fr
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: stirling-pdf
-  namespace: stirling-pdf
-spec:
-  entryPoints:
-    - websecure
-  routes:
-    - match: Host(`pdf.ulyssetassidis.fr`)
-      kind: Rule
-      middlewares:
-        - name: vpn-only
-          namespace: default
-      services:
-        - name: stirling-pdf
-          port: 80
-  tls:
-    secretName: stirling-pdf-tls
