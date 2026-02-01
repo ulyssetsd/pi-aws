@@ -49,6 +49,9 @@ spec:
         env:
         - name: INSECURE
           value: "false"
+        # Push DNS to VPN clients - use Pi's CoreDNS for internal resolution
+        - name: WG_DEFAULT_DNS
+          value: "10.43.0.10"
         resources:
           requests:
             cpu: 100m
