@@ -132,6 +132,7 @@ metadata:
   namespace: wg-easy
 spec:
   type: LoadBalancer
+  externalTrafficPolicy: Local
   selector:
     app.kubernetes.io/name: wg-easy
   ports:
