@@ -12,3 +12,5 @@ spec:
       - 10.8.0.0/24
       # Local home network
       - 192.168.1.0/24
+      # Kubernetes pod network (for VPN traffic routed through wg-easy pod)
+      - 10.42.0.0/16
