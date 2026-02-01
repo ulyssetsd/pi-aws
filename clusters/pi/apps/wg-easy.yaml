@@ -53,6 +53,12 @@ spec:
           value: "wg-easy.ulyssetassidis.fr"
         - name: WG_PORT
           value: "51820"
+        - name: WG_PERSISTENT_KEEPALIVE
+          value: "25"
+        - name: WG_MTU
+          value: "1420"
+        - name: WG_DEFAULT_DNS
+          value: "1.1.1.1, 8.8.8.8"
         resources:
           requests:
             cpu: 50m
