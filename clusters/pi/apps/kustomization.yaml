@@ -6,7 +6,6 @@ resources:
 - wg-easy.yaml
 - pi-grafana.yaml
 - ulyssetsd-github-io.yaml
-# Internal apps (VPN access only, no public ingress)
 - it-tools.yaml
 - stirling-pdf.yaml
 - n8n.yaml
