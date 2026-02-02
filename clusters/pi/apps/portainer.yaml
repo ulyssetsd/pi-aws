@@ -3,20 +3,6 @@ kind: Namespace
 metadata:
   name: portainer
 ---
-# Traefik Middleware to restrict access to local network and VPN
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: local-network-only
-  namespace: portainer
-spec:
-  ipAllowList:
-    sourceRange:
-      - 192.168.1.0/24    # Local WiFi network
-      - 10.8.0.0/24       # WireGuard VPN range
-      - 10.42.0.0/16      # Kubernetes pod network
-      - 10.43.0.0/16      # Kubernetes service network
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -164,7 +150,7 @@ metadata:
   namespace: portainer
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    traefik.ingress.kubernetes.io/router.middlewares: portainer-local-network-only@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-local-network-only@kubernetescrd
 spec:
   tls:
   - hosts:
