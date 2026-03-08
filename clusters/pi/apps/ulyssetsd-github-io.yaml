@@ -5,9 +5,11 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  url: https://github.com/ulyssetsd/ulyssetsd.github.io
+  url: ssh://git@github.com/ulyssetsd/ulyssetsd.github.io
   ref:
     branch: main
+  secretRef:
+    name: ulyssetsd-github-io-deploy-key
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -22,3 +24,51 @@ spec:
   path: "./k8s"
   prune: true
   wait: true
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: ulyssetsd-github-io
+  namespace: flux-system
+spec:
+  image: ghcr.io/ulyssetsd/ulyssetsd.github.io
+  interval: 1m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: ulyssetsd-github-io
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: ulyssetsd-github-io
+  filterTags:
+    pattern: '^sha-[a-f0-9]+$'
+  policy:
+    alphabetical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: ulyssetsd-github-io
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: ulyssetsd-github-io
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: flux@ulyssetassidis.fr
+        name: Flux
+      messageTemplate: "chore: update image to {{range .Changed.Changes}}{{.NewValue}}{{end}}"
+    push:
+      branch: main
+  update:
+    path: ./k8s
+    strategy: Setters
