@@ -43,9 +43,10 @@ spec:
   imageRepositoryRef:
     name: ulyssetsd-github-io
   filterTags:
-    pattern: '^sha-[a-f0-9]+$'
+    pattern: '^main-(?P<ts>[0-9]+)-[a-f0-9]+$'
+    extract: '$ts'
   policy:
-    alphabetical:
+    numerical:
       order: asc
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
@@ -66,7 +67,7 @@ spec:
       author:
         email: flux@ulyssetassidis.fr
         name: Flux
-      messageTemplate: "chore: update image to {{range .Changed.Changes}}{{.NewValue}}{{end}}"
+      messageTemplate: "chore: update image to {{range .Changed.Changes}}{{.NewValue}}{{end}} [skip ci]"
     push:
       branch: main
   update:
