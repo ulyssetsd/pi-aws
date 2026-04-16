@@ -47,6 +47,8 @@ spec:
           protocol: TCP
           name: http
         env:
+        - name: WG_MTU
+          value: "1360"
         - name: INSECURE
           value: "false"
         resources:
