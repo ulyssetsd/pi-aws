@@ -15,10 +15,8 @@ curl -sfL https://get.k3s.io | sh -
 sudo systemctl start k3s
 
 # 3. Setup kubectl
-mkdir -p ~/.kube
-sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sudo chown $(id -u):$(id -g) ~/.kube/config
-sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+install -d -m 700 "$HOME/.kube"
+sudo install -o "$(id -u)" -g "$(id -g)" -m 600 /etc/rancher/k3s/k3s.yaml "$HOME/.kube/config"
 
 # 4. Install Flux
 curl -s https://fluxcd.io/install.sh | sudo bash
@@ -43,6 +41,10 @@ kubectl get ingress -A                # Check web services
 - **Cert-Manager**: Automatic Let's Encrypt certificates
 - **WG-Easy**: WireGuard VPN management interface
 - **Portainer**: Kubernetes management UI
+
+## Protecting Kubernetes credentials
+
+The K3s kubeconfig contains cluster administrator credentials. Keep the user's copy private (directory mode `700`, file mode `600`) and do not make `/etc/rancher/k3s/k3s.yaml` world-readable. Do not commit kubeconfigs, passwords, or Kubernetes Secrets to Git.
 
 ## Adding New Applications
 
