@@ -38,7 +38,7 @@ spec:
     spec:
       containers:
       - name: wg-easy
-        image: ghcr.io/wg-easy/wg-easy:15.2.1
+        image: ghcr.io/wg-easy/wg-easy:15.4.0
         ports:
         - containerPort: 51820
           protocol: UDP
@@ -141,6 +141,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-local-network-only@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
