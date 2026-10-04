@@ -42,6 +42,24 @@ kubectl get ingress -A                # Check web services
 - **WG-Easy**: WireGuard VPN management interface
 - **Portainer**: Kubernetes management UI
 
+### WG-Easy mobile client defaults
+
+WG-Easy v15 stores client defaults in its persistent database; `WG_MTU` and
+`WG_PERSISTENT_KEEPALIVE` container variables do not configure these v15
+settings. After the first WG-Easy setup (and whenever its PVC is recreated),
+open **Admin → Config**, set **MTU** to `1360` and **Persistent Keepalive** to
+`25` seconds, then save. These global values are used for new clients only.
+
+For an existing client, edit its **Advanced** settings to the same values,
+save, then download or display its updated profile and import it again on the
+device. The profile must be re-imported because WG-Easy cannot change a
+configuration already installed on a phone.
+
+MTU `1360` matches a previously working client profile on this setup and is a
+conservative choice for mobile paths. Keepalive `25` seconds follows WireGuard's
+recommended interval for maintaining NAT mappings; it is unnecessary for many
+clients, but is useful for phones moving between mobile networks and Wi-Fi.
+
 ## Protecting Kubernetes credentials
 
 The K3s kubeconfig contains cluster administrator credentials. Keep the user's copy private (directory mode `700`, file mode `600`) and do not make `/etc/rancher/k3s/k3s.yaml` world-readable. Do not commit kubeconfigs, passwords, or Kubernetes Secrets to Git.

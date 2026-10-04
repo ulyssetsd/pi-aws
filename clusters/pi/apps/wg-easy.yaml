@@ -59,9 +59,9 @@ spec:
         - containerPort: 51821
           protocol: TCP
           name: http
+        # WG-Easy v15 stores client MTU/keepalive defaults in its database;
+        # configure them in Admin > Config (see the root README).
         env:
-        - name: WG_MTU
-          value: "1360"
         - name: INSECURE
           value: "false"
         - name: PATH
