@@ -5,6 +5,19 @@ metadata:
   name: wg-easy
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wg-easy-iptables-nft
+  namespace: wg-easy
+data:
+  iptables: |
+    #!/bin/sh
+    exec /usr/sbin/iptables-nft "$@"
+  ip6tables: |
+    #!/bin/sh
+    exec /usr/sbin/ip6tables-nft "$@"
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: wg-easy-config
@@ -51,6 +64,8 @@ spec:
           value: "1360"
         - name: INSECURE
           value: "false"
+        - name: PATH
+          value: /opt/wg-easy-iptables:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         resources:
           requests:
             cpu: 100m
@@ -86,6 +101,9 @@ spec:
         - name: lib-modules
           mountPath: /lib/modules
           readOnly: true
+        - name: firewall-commands
+          mountPath: /opt/wg-easy-iptables
+          readOnly: true
         # Give pod permissions to modify iptables and load the wireguard kernel module
         securityContext:
           capabilities:
@@ -102,6 +120,10 @@ spec:
         hostPath:
           path: /lib/modules
           type: Directory
+      - name: firewall-commands
+        configMap:
+          name: wg-easy-iptables-nft
+          defaultMode: 0755
 ---
 apiVersion: v1
 kind: Service
