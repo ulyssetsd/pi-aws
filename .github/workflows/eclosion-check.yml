@@ -1,0 +1,48 @@
+name: Verify Eclosion deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - clusters/pi/apps/eclosion/**
+      - clusters/pi/apps/kustomization.yaml
+      - .github/workflows/eclosion-check.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eclosion-public-check
+  cancel-in-progress: true
+
+jobs:
+  public-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Wait for Flux and verify public HTTPS
+        shell: bash
+        run: |
+          curl --fail --silent --show-error \
+            --retry 28 --retry-all-errors --retry-delay 10 \
+            --connect-timeout 5 --max-time 15 \
+            --output "$RUNNER_TEMP/eclosion.html" \
+            https://eclosion.ulyssetassidis.fr/
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from html.parser import HTMLParser
+          html = Path(os.environ['RUNNER_TEMP'], 'eclosion.html').read_text()
+          class Page(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.text = []
+              def handle_data(self, text):
+                  self.text.append(text)
+          page = Page()
+          page.feed(html)
+          text = ' '.join(page.text)
+          for expected in ('Éclosion', 'future psychologue', '18 ans et plus', '3114', 'consultations non ouvertes'):
+              assert expected in text, f'Expected page content missing: {expected}'
+          print('Public HTTPS certificate accepted and Eclosion demo content verified.')
+          PY
