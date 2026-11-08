@@ -1,0 +1,20 @@
+# K3s-packaged Traefik settings.
+# - externalTrafficPolicy Local: with the default (Cluster), K3s ServiceLB
+#   masqueraded every client to a 10.42.x pod address, so the
+#   local-network-only middleware (which allows 10.42.0.0/16) let the whole
+#   Internet in. Local keeps the real client address.
+# - access logs in JSON (collected by Alloy/Loki) to audit who reaches the services.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    logs:
+      access:
+        enabled: true
+        format: json
+    service:
+      spec:
+        externalTrafficPolicy: Local

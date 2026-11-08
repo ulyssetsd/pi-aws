@@ -1,6 +1,10 @@
 # Global Traefik Middleware for local network and VPN access restriction
 # This middleware is shared across all internal apps to avoid duplication
 # Reference it in Ingress annotations as: kube-system-local-network-only@kubernetescrd
+#
+# Only effective because traefik-config.yaml sets externalTrafficPolicy: Local.
+# With the K3s default (Cluster), ServiceLB rewrote every client address to a
+# 10.42.x pod IP, which is allowed below: every "internal" app was public.
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
