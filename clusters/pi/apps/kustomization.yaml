@@ -7,4 +7,3 @@ resources:
 - pi-grafana.yaml
 - ulyssetsd-github-io.yaml
 - it-tools.yaml
-- stirling-pdf.yaml
